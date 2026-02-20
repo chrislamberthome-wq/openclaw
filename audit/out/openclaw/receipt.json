@@ -1,0 +1,12 @@
+{
+  "schema": "repeat/receipt@1",
+  "level": 3,
+  "generated_at": "2026-02-20T13:11:33.864Z",
+  "scope": "scratch/shared/**",
+  "state_bindings": {
+    "data/settings.json": null,
+    "devplan.md": null
+  },
+  "evidence": {},
+  "receipt_hash": "df1af43903f56df3eb528c324aceb9d1013d12b4dd4dd7d516d9f53291208e11"
+}

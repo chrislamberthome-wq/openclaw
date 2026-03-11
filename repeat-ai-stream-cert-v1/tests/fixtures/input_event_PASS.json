@@ -1,0 +1,11 @@
+{
+  "schema_version": "event-envelope/v1",
+  "event_id": "evt-001",
+  "source": "sensor-gateway",
+  "payload": {
+    "sensor_id": "s-42",
+    "reading": 0.95,
+    "unit": "dimensionless"
+  },
+  "emitted_at": "2026-03-11T13:59:58Z"
+}

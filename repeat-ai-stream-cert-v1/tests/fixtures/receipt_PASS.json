@@ -1,0 +1,27 @@
+{
+  "receipt_type": "ai_inference_receipt",
+  "entry_id": "001",
+  "event_id": "evt-001",
+  "prev_receipt_hash": null,
+  "input_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "input_schema_version": "event-envelope/v1",
+  "model_id": "anomaly-detector",
+  "model_version": "v1.0.0",
+  "model_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "preprocess_version": "prep-v1.0.0",
+  "policy_version": "policy-v1.0.0",
+  "runtime": {
+    "framework": "onnxruntime",
+    "framework_version": "1.18.0"
+  },
+  "output": {
+    "anomaly_score": 0.95
+  },
+  "decision": {
+    "classification": "ALERT",
+    "threshold": 0.9,
+    "reason": "score >= threshold"
+  },
+  "observed_at": "2026-03-11T14:00:00Z",
+  "receipt_hash": "28632c0763a70ced702c7df6b226f9a5da0cb174bda272ba43fd53a53adc24c6"
+}

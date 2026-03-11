@@ -1,0 +1,71 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://repeat-ai-stream-cert-v1/schemas/replay_verification_result.schema.json",
+  "title": "Replay Verification Result",
+  "description": "Frozen v1.0 schema for the result produced by the replay verifier for a single AI inference receipt.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "outcome",
+    "entry_id",
+    "receipt_hash",
+    "checks"
+  ],
+  "properties": {
+    "outcome": {
+      "type": "string",
+      "enum": ["PASS", "FAIL", "ERROR"],
+      "description": "Top-level verification outcome. PASS = all checks pass. FAIL = schema valid but a governance/policy rule failed. ERROR = structural or hash integrity problem."
+    },
+    "entry_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "entry_id from the verified receipt."
+    },
+    "receipt_hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "receipt_hash from the verified receipt (as declared, not recomputed)."
+    },
+    "message": {
+      "type": "string",
+      "description": "Human-readable summary of the outcome."
+    },
+    "checks": {
+      "type": "object",
+      "description": "Per-check boolean results. All must be true for PASS.",
+      "additionalProperties": false,
+      "required": [
+        "schema_valid",
+        "hash_valid",
+        "ledger_valid"
+      ],
+      "properties": {
+        "schema_valid": {
+          "type": "boolean",
+          "description": "True if the receipt passes JSON Schema validation."
+        },
+        "hash_valid": {
+          "type": "boolean",
+          "description": "True if the recomputed receipt_hash matches the declared receipt_hash."
+        },
+        "ledger_valid": {
+          "type": "boolean",
+          "description": "True if prev_receipt_hash matches the hash of the preceding ledger entry (or null for the first entry)."
+        },
+        "policy_valid": {
+          "type": ["boolean", "null"],
+          "description": "True if the declared policy decision is reproducible from the declared output and policy_version. Null if policy reproduction is not supported for this policy_version."
+        },
+        "artifact_bound": {
+          "type": ["boolean", "null"],
+          "description": "True if model_sha256 matches an approved registry entry for (model_id, model_version). Null if no registry is provided."
+        }
+      }
+    },
+    "error_detail": {
+      "type": ["string", "null"],
+      "description": "Machine-readable error code or description when outcome is ERROR. Null otherwise."
+    }
+  }
+}

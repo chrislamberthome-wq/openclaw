@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://repeat.global/schemas/receipt/v1.0.0",
+  "title": "REPEAT Global Receipt Envelope",
+  "description": "Minimal receipt envelope for REPEAT Global. All hashed artifacts MUST conform to the canonicalization rules in docs/CANONICALIZATION.md. receipt_hash = sha256_hex(canonical_json(receipt minus receipt_hash and signatures[*].sig)).",
+  "type": "object",
+  "required": [
+    "receipt_type",
+    "spec_version",
+    "registry_id",
+    "event_id",
+    "prev_receipt_hash",
+    "payload_hash",
+    "policy_version",
+    "canonicalization_version",
+    "actor",
+    "event_time",
+    "receipt_hash",
+    "signatures"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "receipt_type": {
+      "type": "string",
+      "description": "Identifies the semantic type of the receipt (e.g. 'registry_anchor', 'policy_update', 'seat_fill', 'council_attestation', 'revocation').",
+      "minLength": 1
+    },
+    "spec_version": {
+      "type": "string",
+      "description": "Semver string identifying the REPEAT Global protocol version under which this receipt was produced.",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(-[a-z0-9.]+)?$"
+    },
+    "registry_id": {
+      "type": "string",
+      "description": "Identifier of the registry instance that recorded this receipt.",
+      "minLength": 1
+    },
+    "event_id": {
+      "type": "string",
+      "description": "Globally unique identifier for the event that triggered this receipt. MUST be unique within the registry.",
+      "minLength": 1
+    },
+    "prev_receipt_hash": {
+      "type": "string",
+      "description": "SHA-256 hex digest of the immediately preceding receipt in the chain. Use the all-zeros sentinel ('0000...0000', 64 chars) for the genesis receipt.",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "payload_hash": {
+      "type": "string",
+      "description": "SHA-256 hex digest of the canonical payload artifact that this receipt covers.",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "policy_version": {
+      "type": "string",
+      "description": "Version identifier of the policy contract that was enforced when this receipt was produced.",
+      "minLength": 1
+    },
+    "canonicalization_version": {
+      "type": "string",
+      "description": "Version of the REPEAT Global canonicalization specification used when computing receipt_hash (e.g. '1.0.0').",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(-[a-z0-9.]+)?$"
+    },
+    "actor": {
+      "type": "object",
+      "description": "The entity responsible for producing this receipt.",
+      "required": ["actor_type", "actor_id"],
+      "additionalProperties": false,
+      "properties": {
+        "actor_type": {
+          "type": "string",
+          "description": "Category of the acting entity.",
+          "enum": ["human", "service", "council"]
+        },
+        "actor_id": {
+          "type": "string",
+          "description": "Stable, globally unique identifier for the actor within the registry.",
+          "minLength": 1
+        }
+      }
+    },
+    "event_time": {
+      "type": "string",
+      "description": "RFC 3339 UTC timestamp (format: YYYY-MM-DDTHH:MM:SSZ) at which the event was recorded. Fractional seconds and timezone offsets are NOT permitted.",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+    },
+    "receipt_hash": {
+      "type": "string",
+      "description": "SHA-256 hex digest of canonical_json(receipt minus receipt_hash and signatures[*].sig). This field MUST be excluded from its own hash projection (see docs/CANONICALIZATION.md). Derived field.",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "signatures": {
+      "type": "array",
+      "description": "Ordered list of digital signatures over the receipt projection (receipt minus receipt_hash and signatures[*].sig). An empty array is schema-valid but produces a FAIL outcome during verification: at least one verified signature is required for PASS (see docs/VERIFICATION_OUTCOMES.md).",
+      "minItems": 0,
+      "items": {
+        "type": "object",
+        "required": ["signer_id", "alg", "sig"],
+        "additionalProperties": false,
+        "properties": {
+          "signer_id": {
+            "type": "string",
+            "description": "Stable identifier of the signing entity within the registry.",
+            "minLength": 1
+          },
+          "alg": {
+            "type": "string",
+            "description": "Signature algorithm identifier (e.g. 'ed25519', 'ecdsa-p256-sha256').",
+            "minLength": 1
+          },
+          "sig": {
+            "type": "string",
+            "description": "Lowercase hex-encoded signature bytes. This field is a derived field and MUST be excluded from the hash projection used to compute receipt_hash.",
+            "pattern": "^[a-f0-9]+$"
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "hashProjectionNote": {
+      "description": "Hash projection rule: receipt_hash = sha256_hex(canonical_json(receipt minus receipt_hash and signatures[*].sig)). Canonical JSON is defined in docs/CANONICALIZATION.md: UTF-8, NFC strings, lexicographically sorted keys, no insignificant whitespace, arrays in declared order, integers as JSON numbers, non-integers as quoted decimals, timestamps as YYYY-MM-DDTHH:MM:SSZ, binary as lowercase hex."
+    }
+  }
+}

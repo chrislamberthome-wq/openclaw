@@ -1,0 +1,139 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://repeat-ai-stream-cert-v1/schemas/ai_inference_receipt.schema.json",
+  "title": "AI Inference Receipt",
+  "description": "Frozen v1.0 schema for a deterministic AI inference audit receipt. Every field has a single unambiguous type. No additional properties are permitted.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "receipt_type",
+    "entry_id",
+    "event_id",
+    "input_hash",
+    "input_schema_version",
+    "model_id",
+    "model_version",
+    "model_sha256",
+    "preprocess_version",
+    "policy_version",
+    "runtime",
+    "output",
+    "decision",
+    "receipt_hash"
+  ],
+  "properties": {
+    "receipt_type": {
+      "type": "string",
+      "const": "ai_inference_receipt",
+      "description": "Discriminator tag. Must be exactly 'ai_inference_receipt'."
+    },
+    "entry_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Monotonically increasing ledger entry identifier within a stream. Opaque string; ordering is caller-defined."
+    },
+    "event_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Identifier of the upstream source event that produced the input. Must be stable and non-reused within a stream."
+    },
+    "prev_receipt_hash": {
+      "type": ["string", "null"],
+      "description": "SHA-256 hex digest of the immediately preceding receipt in the ledger chain, or null for the first entry."
+    },
+    "input_hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "SHA-256 hex digest of the canonical input event bytes, binding this receipt to the exact input."
+    },
+    "input_schema_version": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Schema version string identifying the input event envelope format (e.g. 'event-envelope/v1')."
+    },
+    "model_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Human-readable model identifier. Stable within a deployment series."
+    },
+    "model_version": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Semantic version or tag of the model artifact."
+    },
+    "model_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "SHA-256 hex digest of the model artifact, binding the receipt to the exact executable."
+    },
+    "preprocess_version": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Version of the preprocessing pipeline applied before inference."
+    },
+    "policy_version": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Version of the decision policy applied after inference."
+    },
+    "runtime": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["framework", "framework_version"],
+      "description": "Execution runtime environment.",
+      "properties": {
+        "framework": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Inference framework name (e.g. 'onnxruntime', 'pytorch')."
+        },
+        "framework_version": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Exact version of the inference framework."
+        }
+      }
+    },
+    "output": {
+      "type": "object",
+      "description": "Raw model output values. Schema is model-specific. Must not be empty.",
+      "minProperties": 1
+    },
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["classification", "threshold", "reason"],
+      "description": "Policy decision derived from model output.",
+      "properties": {
+        "classification": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Decision label produced by the policy (e.g. 'ALERT', 'PASS', 'BLOCK')."
+        },
+        "threshold": {
+          "type": "number",
+          "description": "Numeric threshold value used in the policy evaluation."
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Human-readable description of why the classification was reached."
+        }
+      }
+    },
+    "observed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Wall-clock timestamp at which the receipt was recorded (ISO 8601). Excluded from receipt_hash projection; observational only."
+    },
+    "receipt_hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "SHA-256 hex digest of the canonical hash projection of this receipt. Computed from a defined subset of fields; see docs/HASH_PROJECTION.md."
+    },
+    "signature": {
+      "type": "string",
+      "description": "Optional cryptographic signature over receipt_hash. Validation is out of scope for v1.0 verifier."
+    }
+  }
+}

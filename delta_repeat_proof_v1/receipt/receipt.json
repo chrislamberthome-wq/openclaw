@@ -1,0 +1,7 @@
+{
+  "cycle_id": "cycle-0001",
+  "trace_sha256": "9ab7699970b13d0337fe9ff4a7beb5f1955ae1dc44a454f065a7cf4c7fd782b5",
+  "replay_match": true,
+  "governance_verdict": "ALLOW",
+  "status": "PASS"
+}

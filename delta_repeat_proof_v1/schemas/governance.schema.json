@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "governance.schema.json",
+  "title": "GovernanceDecision",
+  "description": "Binary governance decision record for an execution cycle.",
+  "type": "object",
+  "required": ["decision_id", "cycle_id", "verdict", "constraints_applied"],
+  "additionalProperties": false,
+  "properties": {
+    "decision_id": {
+      "type": "string",
+      "description": "Unique identifier for the governance decision."
+    },
+    "cycle_id": {
+      "type": "string",
+      "description": "Identifier for the execution cycle this decision applies to."
+    },
+    "verdict": {
+      "type": "string",
+      "enum": ["ALLOW", "DENY"],
+      "description": "Binary governance verdict; DENY halts execution."
+    },
+    "constraints_applied": {
+      "type": "array",
+      "items": {"type": "string"},
+      "minItems": 1,
+      "description": "Ordered list of constraint expressions that were evaluated."
+    }
+  }
+}

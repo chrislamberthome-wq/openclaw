@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "event.schema.json",
+  "title": "TraceEvent",
+  "description": "A single stage event in the five-stage governed execution cycle.",
+  "type": "object",
+  "required": ["seq", "stage", "cycle_id", "timestamp", "prev_hash", "payload"],
+  "additionalProperties": false,
+  "properties": {
+    "seq": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Monotonically increasing sequence number."
+    },
+    "stage": {
+      "type": "string",
+      "enum": ["reflect", "plan", "learn", "regulate", "govern"],
+      "description": "One of the five fixed cycle stages."
+    },
+    "cycle_id": {
+      "type": "string",
+      "description": "Identifier for the execution cycle."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO-8601 timestamp of the stage."
+    },
+    "prev_hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "SHA-256 of the canonical JSON of the previous event; genesis uses 64 zeros."
+    },
+    "payload": {
+      "type": "object",
+      "description": "Stage-specific data."
+    }
+  }
+}

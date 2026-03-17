@@ -1,0 +1,81 @@
+name: Verification Matrix
+
+on:
+  push:
+    paths:
+      - "delta_repeat_proof_v1/**"
+  pull_request:
+    paths:
+      - "delta_repeat_proof_v1/**"
+
+defaults:
+  run:
+    working-directory: delta_repeat_proof_v1
+
+jobs:
+  # --------------------------------------------------------------------------
+  # Layer 1: Unit tests
+  # --------------------------------------------------------------------------
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pytest
+        run: pip install pytest
+
+      - name: Run unit tests
+        run: python -m pytest tests/test_canonical.py tests/test_hash_chain.py tests/test_governance.py tests/test_replay.py tests/test_receipt.py -v
+
+  # --------------------------------------------------------------------------
+  # Layer 2: Adversarial tests
+  # --------------------------------------------------------------------------
+  adversarial-tests:
+    name: Adversarial Tests
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pytest
+        run: pip install pytest
+
+      - name: Run adversarial tests
+        run: python -m pytest tests/test_adversarial.py -v
+
+  # --------------------------------------------------------------------------
+  # Layer 3: Clean verifier run + determinism check (merge gate)
+  # --------------------------------------------------------------------------
+  verification-matrix:
+    name: Verification Matrix (Merge Gate)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    needs: [unit-tests, adversarial-tests]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Baseline verifier run
+        run: python verifier/verify.py
+
+      - name: Full verification matrix
+        run: python scripts/run_verification_matrix.py --runs 5
